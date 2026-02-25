@@ -1,5 +1,5 @@
 import json
-from weather import get_weather
+from weather import get_weather, weather_penalty
 from openai import OpenAI
 
 # Trying to utilize external API data (current weather) and feed it into the OpenAI model for analysis. 1. Pull read data from API 2. Feed into LLM. 3. Produced structured analysis
@@ -63,7 +63,7 @@ def main():
         lat = float(decision["latitude"])
         lon = float(decision["longitude"])
     
-        weather = get_weather(lat, lon)
+        weather = get_weather(lat, lon) 
 
         # 2) Give weather back and ask for final answer
         final = ask_openai([
@@ -73,7 +73,13 @@ def main():
             {"role": "user", "content": f"Here is the weather data JSON:\n{json.dumps(weather)}"}
         ])
 
-        print(final)
+        # Apply the penalty
+        parsed = json.loads(final)
+        model_confidence = parsed["confidence"]
+        # print(f"This is the first confidence: {model_confidence}")
+        adjusted_confidence = max(0, model_confidence - weather_penalty(weather))
+        parsed["confidence"] = round(adjusted_confidence, 2)
+        print(parsed)
 
     elif decision.get("action") == "answer":
         print(json.dumps(decision, indent=2))
