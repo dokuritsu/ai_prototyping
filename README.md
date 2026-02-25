@@ -1,1 +1,2 @@
-Goal - LLMs sometimes answer questions without verifying whether they need external data. I built a prototype where the model first decides if additional information is required, retrieves that data through an API, and then produces a grounded response
+Weather Recommendation Model
+- LLMs sometimes answer questions without verifying whether they need external data. I built a prototype where the model first decides if additional information is required, retrieves that data through an API, and then produces a grounded response
