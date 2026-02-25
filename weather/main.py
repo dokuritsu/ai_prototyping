@@ -25,6 +25,23 @@ def ask_openai(messages):
     )
     return resp.choices[0].message.content
 
+def validate_decision (text):
+    try:
+        # Confirms valid json
+        data = json.loads(text)
+
+        # Confirms "action" is structured into json
+        if "action" not in data:
+            return False, None
+        # Confirms "get_weather" is correctly accompanied by "latitude" & "longitude"
+        if data["action"] == "get_weather":
+            if "latitude" not in data or "longitude" not in data:
+                return False, None
+            
+        return True, data
+    except json.JSONDecodeError:
+        return False, None
+
 def main():
     user_question = input("Ask a question: ").strip()
 
@@ -34,11 +51,11 @@ def main():
         {"role": "user", "content": user_question}
     ])
 
-    try:
-        decision = json.loads(first)
-    except json.JSONDecodeError:
-        print("Model didn't return valid JSON. Raw output:\n", first)
-        return
+    valid, decision = validate_decision(first)
+    if not valid:
+            print("Invalid decision from model")
+            print(first)
+            return
     
     if decision.get("action") == "get_weather":
         print("\nDecision step:")
